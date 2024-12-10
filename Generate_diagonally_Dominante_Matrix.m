@@ -4,8 +4,10 @@ clc
 clear all
 close all
 % Matrix dimention 64x64
-A_dim=64;
-H_dim=16;
+% A_dim=64;
+% H_dim=16;
+A_dim=8;
+H_dim=2;
 % Generating a tall matrix H such that A=H'*H is diagonally dominant matrix
 H=randn(H_dim*A_dim,A_dim);
 % A=ceil(H'*H/(H_dim*A_dim)*2^(0));
@@ -19,6 +21,8 @@ Ainv=inv(A);
 D=diag(diag(A));
 E=A-D;
 Dinv=inv(D);
+temp=(Dinv*E)*Dinv
+temp*Dinv
 % Computing Neumann series approximation of order 2, 3 and 4
 Ainv2=Dinv-Dinv*E*Dinv;
 Ainv3=Dinv-Dinv*E*Dinv+Dinv*E*Dinv*E*Dinv;
