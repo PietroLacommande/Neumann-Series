@@ -21,8 +21,10 @@ Ainv=inv(A);
 D=diag(diag(A));
 E=A-D;
 Dinv=inv(D);
-temp=(Dinv*E)*Dinv
-temp*Dinv
+temp=(Dinv*E)
+temp2=temp*Dinv
+mult3 = (temp*temp)*Dinv
+Approx = Dinv-temp2+ mult3
 % Computing Neumann series approximation of order 2, 3 and 4
 Ainv2=Dinv-Dinv*E*Dinv;
 Ainv3=Dinv-Dinv*E*Dinv+Dinv*E*Dinv*E*Dinv;
