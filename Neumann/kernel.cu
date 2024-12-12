@@ -198,7 +198,7 @@ void readMatrixFromFile(const char* filename, float* matrix, int rows, int cols)
 }
 
 int main() {
-    const int N = 64; // Matrix size
+    const int N = 8; // Matrix size
     float A[N * N];   // Host matrix input
     float A_inv[N * N]; // Host matrix result
 
