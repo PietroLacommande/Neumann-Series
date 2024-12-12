@@ -9,6 +9,7 @@ Matrix inversion can be computationally expensive, especially for large matrices
 The Neumann series offers a way to approximate the inverse for matrices \( A \) where \( \|I - A\| \) is small. This repository includes:
 - An explanation of the Neumann series for matrix inversion.
 - An implementation in CUDA.
+- MATLAB code for generating a matrix A, calculating the follow up matrixes for Neumann series and calculating the inverse of matrix A
 
 ## Installation
 
