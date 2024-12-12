@@ -20,7 +20,7 @@ git clone https://github.com/yourusername/neumann-inverse-matrix.git
 
 This project is licensed under the MIT License
 
-##Responsibility and Code Release Practices
+## Responsibility and Code Release Practices
 
 When releasing source code on GitHub, it is essential to follow responsible practices:
 -Clarity: Provide clear documentation (e.g., this README) to explain how to use the code effectively.
