@@ -71,19 +71,23 @@ __global__ void multiplyKernel(float* c, const float* a, const float* b, int len
     }
 }
 
+
 // CUDA kernel to extract diagonal and off-diagonal matrices
-__global__ void extractDiagonalAndOffDiagonal(float* A, float* D, float* E, int length) {
-    int linearIdx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (linearIdx < length) {
-        for (int j = 0; j < length; j++) {
-            if (linearIdx == j) {
-                D[linearIdx * length + j] = A[linearIdx * length + j];
-                E[linearIdx * length + j] = 0.0f;
-            }
-            else {
-                D[linearIdx * length + j] = 0.0f;
-                E[linearIdx * length + j] = A[linearIdx * length + j];
-            }
+__global__ void extractDiagonalAndOffDiagonal(float* A, float* D, float* E, int N) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (row < N && col < N) {
+        int idx = row * N + col;
+        if (row == col) {
+            // Diagonal element
+            D[idx] = A[idx];
+            E[idx] = 0.0f;
+        }
+        else {
+            // Off-diagonal element
+            D[idx] = 0.0f;
+            E[idx] = A[idx];
         }
     }
 }
@@ -110,7 +114,7 @@ __global__ void combineResults(float* D_inv, float* DinvEDinv, float* DinvE2Dinv
 // Host function for matrix inversion using Neumann series
 void matrixInversionNeumann(float* A, float* A_inv, int N) {
     size_t size = N * N * sizeof(float);
-    float* d_A, * d_D, * d_E, * d_D_inv, * d_DinvE, * d_DinvEDinv, * d_DinvE2Dinv, * d_A_inv;
+    float* d_A, * d_D, * d_E, * d_D_inv, * d_DinvE, * d_DinvEDinv, * d_DinvE2,* d_DinvE2Dinv, * d_A_inv;
 
     cudaMalloc((void**)&d_A, size);
     cudaMalloc((void**)&d_D, size);
@@ -118,6 +122,7 @@ void matrixInversionNeumann(float* A, float* A_inv, int N) {
     cudaMalloc((void**)&d_D_inv, size);
     cudaMalloc((void**)&d_DinvE, size);
     cudaMalloc((void**)&d_DinvEDinv, size);
+    cudaMalloc((void**)&d_DinvE2, size);
     cudaMalloc((void**)&d_DinvE2Dinv, size);
     cudaMalloc((void**)&d_A_inv, size);
 
@@ -130,8 +135,8 @@ void matrixInversionNeumann(float* A, float* A_inv, int N) {
     extractDiagonalAndOffDiagonal << <gridSize, blockSize >> > (d_A, d_D, d_E, N);
     cudaDeviceSynchronize();
 
-    // Step 2: Compute D^{-1}
-    invertDiagonal << <(N + blockSize.x - 1) / blockSize.x, blockSize.x >> > (d_D, d_D_inv, N);
+     // Step 2: Compute D^{-1}
+    invertDiagonal << < gridSize, blockSize >> > (d_D, d_D_inv, N);
     cudaDeviceSynchronize();
 
     // Step 3: Compute D^{-1}E
@@ -140,11 +145,12 @@ void matrixInversionNeumann(float* A, float* A_inv, int N) {
 
     // Step 4: Compute D^{-1}ED^{-1}
     multiplyKernel << <gridSize, blockSize >> > (d_DinvEDinv, d_DinvE, d_D_inv, N);
-    cudaDeviceSynchronize();
+    
 
     // Step 5: Compute (D^{-1}E)^2D^{-1}
-    multiplyKernel << <gridSize, blockSize >> > (d_DinvE2Dinv, d_DinvE, d_DinvE, N);
-    multiplyKernel << <gridSize, blockSize >> > (d_DinvE2Dinv, d_DinvE2Dinv, d_D_inv, N);
+    multiplyKernel << <gridSize, blockSize >> > (d_DinvE2, d_DinvE, d_DinvE, N);
+    cudaDeviceSynchronize();
+    multiplyKernel << <gridSize, blockSize >> > (d_DinvE2Dinv, d_DinvE2, d_D_inv, N);
     cudaDeviceSynchronize();
 
     // Step 6: Combine results to compute A^{-1}
@@ -159,6 +165,7 @@ void matrixInversionNeumann(float* A, float* A_inv, int N) {
     cudaFree(d_E);
     cudaFree(d_D_inv);
     cudaFree(d_DinvE);
+    cudaFree(d_DinvE2);
     cudaFree(d_DinvEDinv);
     cudaFree(d_DinvE2Dinv);
     cudaFree(d_A_inv);
@@ -196,7 +203,7 @@ int main() {
     float A_inv[N * N]; // Host matrix result
 
     // Step 1: Read matrix from file
-    const char* filename = "../MatrixA.txt";
+    const char* filename = "C:/Users/lacommap/Desktop/Neumann-Series/MatrixA.txt";
     readMatrixFromFile(filename, A, N, N);
 
     printf("Original Matrix A:\n");
