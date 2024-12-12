@@ -4,10 +4,9 @@ clc
 clear all
 close all
 % Matrix dimention 64x64
-% A_dim=64;
-% H_dim=16;
-A_dim=8;
-H_dim=2;
+A_dim=64;
+H_dim=16;
+
 % Generating a tall matrix H such that A=H'*H is diagonally dominant matrix
 H=randn(H_dim*A_dim,A_dim);
 % A=ceil(H'*H/(H_dim*A_dim)*2^(0));
