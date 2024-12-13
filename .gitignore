@@ -1,0 +1,34 @@
+# Ignore Visual Studio files
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+*.suo
+*.ncb
+*.log
+*.sql
+*.cache
+*.pdb
+*.ilk
+
+# Ignore build outputs
+x64/
+*.obj
+*.exe
+*.lib
+*.exp
+
+# Ignore MATLAB temporary files
+*.asv
+*.m~
+
+# Ignore other temporary/system files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Ignore PDF and PowerPoint if they are not part of the codebase
+*.pdf
+*.pptx
+
+# Optional: Ignore text files if they're not needed in version control
+*.txt
