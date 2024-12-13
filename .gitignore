@@ -26,9 +26,6 @@ x64/
 Thumbs.db
 *.tmp
 
-# Ignore PDF and PowerPoint if they are not part of the codebase
-*.pdf
-*.pptx
 
 # Optional: Ignore text files if they're not needed in version control
 *.txt
